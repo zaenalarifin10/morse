@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Morse Receiver</title>
+    <style>
+        body { font-family: Arial; text-align: center; margin-top: 50px; background: #121212; color: white; }
+        #output { font-size: 40px; font-weight: bold; color: #2ed573; margin-top: 30px; }
+    </style>
+</head>
+<body>
+    <h2>User 2: Hasil Terjemahan</h2>
+    <div id="output">Menunggu pesan...</div>
+
+    <script>
+        // Kamus Morse Sederhana
+        const morseKamus = {
+            ".-": "A", "-...": "B", "-.-.": "C", "-..": "D", ".": "E",
+            "..-.": "F", "--.": "G", "....": "H", "..": "I", ".---": "J",
+            "-.-": "K", ".-..": "L", "--": "M", "-.": "N", "---": "O",
+            ".--.": "P", "--.-": "Q", ".-.": "R", "...": "S", "-": "T",
+            "..-": "U", "...-": "V", ".--": "W", "-..-": "X", "-.--": "Y", "--..": "Z"
+        };
+
+        function terjemahkan(kode) {
+            // Jika kode berantakan dan tidak ada di kamus, kembalikan karakter acak atau tanda tanya
+            return morseKamus[kode] || "?";
+        }
+
+        // Cek data baru setiap 1 detik
+        setInterval(() => {
+            let dataMorse = localStorage.getItem('raw_morse');
+            if (dataMorse) {
+                // Di sini logika penerjemahan per huruf otomatis
+                document.getElementById('output').innerText = terjemahkan(dataMorse);
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
