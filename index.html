@@ -2,35 +2,65 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Morse Sender</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User 1 - Pengirim Morse</title>
     <style>
-        body { font-family: Arial; text-align: center; margin-top: 50px; background: #121212; color: white; }
-        .btn { width: 80%; height: 150px; font-size: 24px; background: #ff4757; color: white; border: none; border-radius: 10px; }
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background: #121212; color: white; }
+        .btn { width: 80%; height: 180px; font-size: 24px; background: #ff4757; color: white; border: none; border-radius: 15px; cursor: pointer; -webkit-user-select: none; user-select: none; }
         .btn:active { background: #ff6b81; }
+        #status { font-size: 18px; color: #ffa502; margin-top: 20px; min-height: 25px; }
     </style>
 </head>
 <body>
     <h2>User 1: Pengirim Morse</h2>
-    <button id="pad" class="btn">TEKAN DI SINI</button>
-    <p>Ketuk cepat untuk titik (.), tahan untuk garis (-)</p>
+    <button id="pad" class="btn">TEKAN / TAHAN DI SINI</button>
+    <div id="status">Siap mengetuk...</div>
+    <p style="color: #aaa; font-size: 14px;">Ketuk cepat = Titik (.)<br>Tahan agak lama = Garis (-)<br>Tunggu 1 detik tanpa ketuk = Kirim Huruf</p>
 
     <script>
         let pad = document.getElementById('pad');
-        let start, morse = "";
+        let statusDiv = document.getElementById('status');
+        let start, timerSelesaiHuruf;
+        let hurufSekarang = ""; 
 
-        pad.addEventListener('touchstart', (e) => {
+        // Fungsi saat tombol mulai ditekan
+        function mulaiTekan(e) {
             e.preventDefault();
             start = Date.now();
-        });
+            clearTimeout(timerSelesaiHuruf); // Batalkan timer kirim jika user mengetuk lagi
+        }
 
-        pad.addEventListener('touchend', () => {
-            let diff = Date.now() - start;
-            morse += (diff < 250) ? "." : "-";
+        // Fungsi saat tombol dilepas
+        function selesaiTekan() {
+            if (!start) return;
+            let durasi = Date.now() - start;
             
-            // Mengirim kode ke SHTTPS menggunakan metode POST (jika dikonfigurasi)
-            // Untuk uji coba lokal, data disimpan sementara di localStorage browser bersama
-            localStorage.setItem('raw_morse', morse);
-        });
+            // Tentukan titik atau garis
+            if (durasi < 250) {
+                hurufSekarang += ".";
+            } else {
+                hurufSekarang += "-";
+            }
+            
+            statusDiv.innerText = "Kode saat ini: " + hurufSekarang;
+            
+            // Tunggu 1 detik setelah ketukan terakhir untuk mengirim ke receiver
+            timerSelesaiHuruf = setTimeout(() => {
+                // Ambil pesan lama yang ada di localStorage
+                let pesanLama = localStorage.getItem('pesan_morse') || "";
+                // Kirim kode huruf yang baru
+                localStorage.setItem('pesan_morse', pesanLama + " " + hurufSekarang);
+                
+                statusDiv.innerText = "Huruf '" + hurufSekarang + "' Terkirim!";
+                hurufSekarang = ""; // Reset untuk huruf berikutnya
+            }, 1000);
+        }
+
+        // Mendukung HP (Touch) dan Laptop (Mouse)
+        pad.addEventListener('touchstart', mulaiTekan);
+        pad.addEventListener('touchend', selesaiTekan);
+        pad.addEventListener('mousedown', mulaiTekan);
+        pad.addEventListener('mouseup', selesaiTekan);
     </script>
 </body>
 </html>
